@@ -1,4 +1,4 @@
-classdef DoseMonitor < handle
+classdef DoseMonitor < cxro.DoseMonitorAbstract
     %UNTITLED Summary of this class goes here
     %   Detailed explanation goes here
     
@@ -63,6 +63,12 @@ classdef DoseMonitor < handle
         end
         
         
+        function [dCounts, lSuccess] = getCounts(this)
+            [cWord, lSuccess] = this.read();
+            [cTiming, cIncrement, dSamples, dCounts] = this.getValuesFromDataWord(cWord);            
+        end
+        
+        
         function [cVal, lSuccess] = read(this)
             
             cCommand = sprintf('cat %s', this.cPathData);
@@ -73,10 +79,13 @@ classdef DoseMonitor < handle
             lSuccess = status == 0;
             %}
             
-            this.ssh2_conn = ssh2_command(this.ssh2_conn, cCommand);
+            enablePrint = 0;
+            
+            [this.ssh2_conn, result] = ssh2_command(this.ssh2_conn, cCommand, enablePrint);
             ceResponse = ssh2_command_response(this.ssh2_conn); % cell with one element for response of each command
             cVal = ceResponse{1};
             lSuccess = true;
+            
             
         end
         
@@ -120,6 +129,21 @@ classdef DoseMonitor < handle
 
             
         end
+        
+         function l = hasProp(this, c)
+            
+            l = false;
+            if ~isempty(findprop(this, c))
+                l = true;
+            end
+            
+        end
+        
+        
+        function msg(this, cMsg)
+           fprintf('%s\n', cMsg); 
+        end
+        
         
         
     end
