@@ -54,10 +54,12 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
         
         function lSuccess = executeStartScript(this)
             
+            
             cCommand = sprintf('%s', this.cPathStartScript);
             
             % optional third argument to suppress output
-            this.ssh2_conn = ssh2_command(this.ssh2_conn, cCommand, 1);
+            enablePrint = 0;
+            this.ssh2_conn = ssh2_command(this.ssh2_conn, cCommand, enablePrint);
            
             lSuccess = true;
         end
