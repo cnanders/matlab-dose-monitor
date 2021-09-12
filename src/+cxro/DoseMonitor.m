@@ -65,9 +65,51 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
         end
         
         
+        % Returns total charge when provided with the gain of the
+        % current amplifier that converts amps to volts.  Assumes
+        % voltage is constant over each sample domain (the signal is 
+        % adequately sampled by the ADC)
+        
+        function [dCharge, lSuccess] = getCharge(this, dGain)
+            
+            [cWord, lSuccess] = this.read();
+            [cTiming, cIncrement, dSamples, dCounts] = this.getValuesFromDataWord(cWord);
+            
+             dCountsZero = dSamples * 131072;
+            dCounts = dCounts - dCountsZero;
+            
+            % 1 ADC count is 20V/2^18 = 76e-6 V
+            % See google Drive file Dose Monitor Documentation v5
+            
+            dSeconds = dSamples / 100e3 % 100 kHz ADC
+            dVolts = dCounts * 76e-6; % accumulated
+            dAmps = dVolts * dGain;
+            dCharge = dAmps * dSeconds;
+           
+        end
+        
         function [dCounts, lSuccess] = getCounts(this)
             [cWord, lSuccess] = this.read();
-            [cTiming, cIncrement, dSamples, dCounts] = this.getValuesFromDataWord(cWord);            
+            [cTiming, cIncrement, dSamples, dCounts] = this.getValuesFromDataWord(cWord);   
+            
+            % The range of the ADC is -10V to +10V
+            % Voltage sample of -10V is 0x00000 (0) counts
+            % Voltage sample of 0 V is 0x20000 (131072)
+            % Voltage sample of 10V is 0x3ffff (262143) counts
+            % dSamples of these samples get summed together and that is
+            % dCounts.
+            % Need to subtract dSamples * 131072 from dCounts to get the 
+            % corrected value.
+            
+            % 1 ADC count is 20V/2^18 = 76e-6 V
+            % See google Drive file Dose Monitor Documentation v5
+            
+            dSamples
+            dCountsZero = dSamples * 131072;
+            dCounts = dCounts - dCountsZero;
+            dCounts;
+            dVolts = dCounts * 76e-6; % accumulated
+            dVoltsPerSample = dVolts / dSamples
         end
         
         

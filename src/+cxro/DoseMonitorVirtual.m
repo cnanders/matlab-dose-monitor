@@ -25,6 +25,12 @@ classdef DoseMonitorVirtual < cxro.DoseMonitorAbstract
             dCounts = 1000 + floor(500 * rand);     
         end
         
+        function [dCharge, lSuccess] = getCharge(this, dGain)
+            
+            [dCharge, lSuccess] = this.getCounts();
+        end
+        
+        
         
     end
     
