@@ -81,10 +81,14 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
             % 1 ADC count is 20V/2^18 = 76e-6 V
             % See google Drive file Dose Monitor Documentation v5
             
-            dSeconds = dSamples / 100e3 % 100 kHz ADC
+            dSeconds = dSamples / 100e3; % 100 kHz ADC
             dVolts = dCounts * 76e-6; % accumulated
             dAmps = dVolts * dGain;
             dCharge = dAmps * dSeconds;
+            dChargeElectron = 1.60217662e-19;
+            dCharge = round(dCharge / dChargeElectron); % return number of photoelectrons
+                        
+           
            
         end
         
@@ -104,12 +108,12 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
             % 1 ADC count is 20V/2^18 = 76e-6 V
             % See google Drive file Dose Monitor Documentation v5
             
-            dSamples
+            dSamples;
             dCountsZero = dSamples * 131072;
             dCounts = dCounts - dCountsZero;
             dCounts;
             dVolts = dCounts * 76e-6; % accumulated
-            dVoltsPerSample = dVolts / dSamples
+            dVoltsPerSample = dVolts / dSamples;
         end
         
         
