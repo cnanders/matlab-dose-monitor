@@ -52,6 +52,9 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
             
         end
         
+        % as of 2022.01 this function blocks matlab indefinitely.  Only
+        % solution is to SSH in and run this on the raspberry PI machine
+        % IP is shown above
         function lSuccess = executeStartScript(this)
             
             
@@ -75,21 +78,26 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
             [cWord, lSuccess] = this.read();
             [cTiming, cIncrement, dSamples, dCounts] = this.getValuesFromDataWord(cWord);
             
-             dCountsZero = dSamples * 131072;
+            dCountsZero = dSamples * 131072;
             dCounts = dCounts - dCountsZero;
             
             % 1 ADC count is 20V/2^18 = 76e-6 V
             % See google Drive file Dose Monitor Documentation v5
             
             dSeconds = dSamples / 100e3; % 100 kHz ADC
-            dVolts = dCounts * 76e-6; % accumulated
-            dAmps = dVolts * dGain;
-            dCharge = dAmps * dSeconds;
+            dPeriodADC = 1e-5; % seconds per sample
+            dVoltsSum = dCounts * 76e-6; % accumulated
+            dAmpsSum = dVoltsSum * dGain;
+            dCharge = dAmpsSum * dPeriodADC; % discrete integral of I(t) vs. t
             dChargeElectron = 1.60217662e-19;
             dCharge = round(dCharge / dChargeElectron); % return number of photoelectrons
                         
            
-           
+            % A quick back-of-envelope
+            % Assume 150 pA of current (3V at gain of 50 pA/V)
+            % Assume 2.2 seconds exposure
+            % gives about 2 billion photoelectrons
+            % 150e-12 * 2.2 / 1.6e-19
         end
         
         function [dCounts, lSuccess] = getCounts(this)
