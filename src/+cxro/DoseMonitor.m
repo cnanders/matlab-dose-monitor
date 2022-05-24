@@ -65,7 +65,7 @@ classdef DoseMonitor < cxro.DoseMonitorAbstract
         end
         
         
-        % Returns total charge when provided with the gain of the
+        % Returns total charge (in number of electrons) when provided with the gain of the
         % current amplifier that converts amps to volts.  Assumes
         % voltage is constant over each sample domain (the signal is 
         % adequately sampled by the ADC)
